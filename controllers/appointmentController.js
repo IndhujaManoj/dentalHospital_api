@@ -10,6 +10,13 @@ const createAppointment = async (req, res) => {
   }
 
   try {
+    // Check if the selected time slot is already booked for the specific date
+    const existingAppointment = await Appointment.findOne({ date, time });
+
+    if (existingAppointment) {
+      return res.status(400).json({ error: "The selected time slot is already booked." });
+    }
+
     // Save the appointment to the database with status set to 'pending'
     const newAppointment = await Appointment.create({
       name,
@@ -18,10 +25,11 @@ const createAppointment = async (req, res) => {
       phone,
       email,
       message,
-      status: "pending",  // Default status is 'pending'
+      status: "pending", // Default status is 'pending'
     });
 
     res.status(201).json({
+      success: true,
       message: "Appointment created successfully",
       data: newAppointment,
     });
@@ -79,8 +87,38 @@ const updateAppointmentStatus = async (req, res) => {
   }
 };
 
+// Function to get available slots for a specific date
+const getAvailableSlots = async (req, res) => {
+  const { date } = req.query; // Get the date from the query parameter
+  const timeSlots = [
+    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+    "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+    "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM",
+    "06:00 PM", "06:30 PM", "07:00 PM", "07:30 PM", "08:00 PM", "08:30 PM", "09:00 PM"
+  ];
+
+  try {
+    // Find all appointments for the specified date
+    const appointmentsForDate = await Appointment.find({ date });
+
+    // Extract the times of the booked appointments
+    const bookedSlots = appointmentsForDate.map(appointment => appointment.time);
+
+    // Filter the time slots to find the available ones
+    const availableSlots = timeSlots.filter(slot => !bookedSlots.includes(slot));
+
+    return res.status(200).json({ availableSlots, bookedSlots }); // Return both available and booked slots
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+
+
 module.exports = {
   createAppointment,
   getAppointments,
   updateAppointmentStatus,
+  getAvailableSlots, // Export the new function
 };

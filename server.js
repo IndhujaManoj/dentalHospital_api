@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const uploadRoutes = require("./routes/uploadRoutes"); // Import the upload routes
 
 dotenv.config();
 const app = express();
@@ -18,6 +19,7 @@ connectDB();
 // Routes
 app.use("/api", appointmentRoutes);
 app.use("/api", contactRoutes);
+app.use("/api", uploadRoutes); // Add the upload routes here
 
 
 // Server Setup

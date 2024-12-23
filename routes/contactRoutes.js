@@ -46,6 +46,7 @@ router.post("/contact", async (req, res) => {
     res.status(201).json({
       message: "Message sent successfully, and details saved!",
       data: newContact,
+      success:true
     });
   } catch (error) {
     console.error("Error:", error.message);
@@ -96,6 +97,7 @@ router.delete("/contact/:id", async (req, res) => {
     res.status(200).json({
       message: "Contact message deleted successfully",
       data: deletedContact,
+
     });
   } catch (error) {
     console.error("Error:", error.message);
